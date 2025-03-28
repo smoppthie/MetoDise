@@ -1,0 +1,85 @@
+from abc import ABC, abstractmethod
+
+# Clase Asignatura
+class Asignatura:
+    def __init__(self, nombre, codigo, creditos):
+        self.nombre = nombre
+        self.codigo = codigo
+        self.creditos = creditos
+
+# Interfaz para almacenamiento (DIP - Inversión de Dependencias)
+class Almacenamiento(ABC):
+    @abstractmethod
+    def guardar_alumno(self, alumno):
+        pass
+    
+    @abstractmethod
+    def obtener_alumno(self, rut):
+        pass
+    
+    @abstractmethod
+    def eliminar_alumno(self, rut):
+        pass
+
+# Implementación con un diccionario (para efectos del taller)
+class AlmacenamientoMemoria(Almacenamiento):
+    def __init__(self):
+        self.datos = {}
+
+    def guardar_alumno(self, alumno):
+        self.datos[alumno.rut] = alumno
+        print(f"Alumno {alumno.nombre} guardado.")
+
+    def obtener_alumno(self, rut):
+        return self.datos.get(rut, None)
+    
+    def eliminar_alumno(self, rut):
+        if rut in self.datos:
+            del self.datos[rut]
+            print(f"Alumno con RUT {rut} eliminado.")
+        else:
+            print("Alumno no encontrado.")
+
+# Clase base Alumno (SRP - Responsabilidad Única)
+class Alumno(ABC):
+    def __init__(self, nombre, edad, rut, fecha_nacimiento):
+        self.nombre = nombre
+        self.edad = edad
+        self.rut = rut
+        self.fecha_nacimiento = fecha_nacimiento
+        self.asignaturas = []
+    
+    def agregar_asignatura(self, asignatura):
+        self.asignaturas.append(asignatura)
+
+    @abstractmethod
+    def obtener_roles(self):
+        pass
+
+# Subclases de Alumno (OCP - Abierto/Cerrado, LSP - Sustitución de Liskov)
+class AlumnoTitulados(Alumno):
+    def obtener_roles(self):
+        return ["No estudia, no puede hacer ayudantías"]
+
+class AlumnoNoAyudante(Alumno):
+    def obtener_roles(self):
+        return ["Estudia"]
+
+class AlumnoAyudante(Alumno):
+    def obtener_roles(self):
+        return ["Estudia", "Hace ayudantías"]
+
+class AlumnoMagister(Alumno):
+    def obtener_roles(self):
+        return ["Estudia", "Hace clases"]
+
+class AlumnoDoctorado(Alumno):
+    def obtener_roles(self):
+        return ["Estudia", "Hace clases", "Investiga"]
+
+# Uso del sistema
+almacenamiento = AlmacenamientoMemoria()
+alumno1 = AlumnoNoAyudante("Carlos Pérez", 22, "12345678-9", "01-01-2001")
+almacenamiento.guardar_alumno(alumno1)
+
+print(almacenamiento.obtener_alumno("12345678-9").obtener_roles())
